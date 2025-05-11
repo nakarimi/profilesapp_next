@@ -8,4 +8,14 @@ export const auth = defineAuth({
   loginWith: {
     email: true,
   },
+  verification: {
+    email: true,
+  },
+  passwordPolicy: {
+    minLength: 8,
+    requireNumbers: true,
+    requireSpecialCharacters: true,
+    requireUppercase: true,
+    requireLowercase: true,
+  },
 });
