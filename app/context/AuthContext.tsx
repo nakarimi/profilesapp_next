@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { signIn, signUp, signOut, getCurrentUser } from 'aws-amplify/auth';
+import { signIn, signUp, signOut, getCurrentUser, resetPassword as amplifyResetPassword, confirmResetPassword as amplifyConfirmResetPassword } from 'aws-amplify/auth';
 import { Amplify } from 'aws-amplify';
 import outputs from '@/amplify_outputs.json';
 
@@ -13,6 +13,8 @@ interface AuthContextType {
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   isAuthenticated: boolean;
+  resetPassword: (username: string) => Promise<void>;
+  confirmResetPassword: (username: string, confirmationCode: string, newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -75,6 +77,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const handleResetPassword = async (username: string) => {
+    try {
+      await amplifyResetPassword({ username });
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      throw error;
+    }
+  };
+
+  const handleConfirmResetPassword = async (username: string, confirmationCode: string, newPassword: string) => {
+    try {
+      await amplifyConfirmResetPassword({ username, confirmationCode, newPassword });
+    } catch (error) {
+      console.error('Error confirming reset password:', error);
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -83,6 +103,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signUp: handleSignUp,
         signOut: handleSignOut,
         isAuthenticated,
+        resetPassword: handleResetPassword,
+        confirmResetPassword: handleConfirmResetPassword,
       }}
     >
       {children}
