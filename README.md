@@ -24,6 +24,16 @@ Before you begin, ensure you have:
 
 ## Installation
 
+0. Follow Prerequisites
+Before starting this tutorial, you will need:
+
+An AWS account: if you don't already have one follow the Setup Your Environment tutorial.
+Your AWS profile configured for local development.
+Installed on your environment: Nodejs and npm.
+Familiarity with Git and a Github account.
+
+https://aws.amazon.com/getting-started/hands-on/build-web-app-s3-lambda-api-gateway-dynamodb/
+
 1. **Clone the repository**
    ```bash
    git clone <your-repo-url>
