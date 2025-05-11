@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { signIn, signUp, signOut, getCurrentUser, resetPassword as amplifyResetPassword, confirmResetPassword as amplifyConfirmResetPassword } from 'aws-amplify/auth';
+import { signIn, signUp, signOut, getCurrentUser, resetPassword as amplifyResetPassword, confirmResetPassword as amplifyConfirmResetPassword, confirmSignUp } from 'aws-amplify/auth';
 import { Amplify } from 'aws-amplify';
 import outputs from '@/amplify_outputs.json';
 
@@ -10,7 +10,8 @@ Amplify.configure(outputs);
 interface AuthContextType {
   user: any;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<{ isSignUpComplete: boolean; nextStep: any }>;
+  confirmSignUp: (email: string, code: string) => Promise<void>;
   signOut: () => Promise<void>;
   isAuthenticated: boolean;
   resetPassword: (username: string) => Promise<void>;
@@ -50,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const handleSignUp = async (email: string, password: string) => {
     try {
-      await signUp({
+      const result = await signUp({
         username: email,
         password,
         options: {
@@ -60,8 +61,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           autoSignIn: true,
         },
       });
+      return result;
     } catch (error) {
       console.error('Error signing up:', error);
+      throw error;
+    }
+  };
+
+  const handleConfirmSignUp = async (email: string, code: string) => {
+    try {
+      await confirmSignUp({
+        username: email,
+        confirmationCode: code
+      });
+    } catch (error) {
+      console.error('Error confirming sign up:', error);
       throw error;
     }
   };
@@ -101,6 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         signIn: handleSignIn,
         signUp: handleSignUp,
+        confirmSignUp: handleConfirmSignUp,
         signOut: handleSignOut,
         isAuthenticated,
         resetPassword: handleResetPassword,
